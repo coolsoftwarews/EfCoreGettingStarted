@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudentApp.Core.Domain;
 using StudentApp.Data;
+using StudentApp.Services;
 
 namespace StudentApp.API.Controllers
 {
@@ -10,39 +11,33 @@ namespace StudentApp.API.Controllers
     [ApiController]
     public class StudentController : ControllerBase
     {
-        private StudentContext _context;
+        private IStudentService _studentService;
 
-        public StudentController()
+        public StudentController(
+                        IStudentService studentService
+            )
         {
-            this._context = new StudentContext();
+            this._studentService = studentService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
 
-         var students = await _context.Students
-                                    .ToListAsync();
-
-            return Ok(students);
+            return  Ok(await this._studentService.GetAllAsync());
         }
 
         [HttpGet("{id}", Name ="GetStudentById")]
         public async Task<IActionResult> Get(int id)
         {
-
-            return Ok(await this._context.Students.FirstOrDefaultAsync(x => x.Id == id));
-
+            return Ok(await this._studentService.GetByIdAsync(id));
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Student student)
         {
-                this._context.Add(student); 
-
-                await this._context.SaveChangesAsync();
-
-                return Ok(student);
+              await this._studentService.CreateAsync(student);
+              return Ok(student);
 
         }
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using StudentApp.Core.Domain;
 using StudentApp.Data;
+using StudentApp.Services;
 
 namespace StudentApp.API.Controllers
 {
@@ -10,35 +11,31 @@ namespace StudentApp.API.Controllers
     [ApiController]
     public class GradeController : ControllerBase
     {
-        private StudentContext _context;
+        private IGradeService _gradeService;
 
-        public GradeController()
+        public GradeController(
+                        IGradeService gradeService
+            )
         {
-            this._context = new StudentContext();
+            this._gradeService = gradeService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-
-            return Ok(await _context.Grades.ToListAsync());
-
-
+            return Ok(await this._gradeService.GetAllAsync());
         }
 
         [HttpGet("{id}", Name = "GetGradeById")]
         public async Task<IActionResult> Get(int id)
         {
-
-            return Ok(await this._context.Grades.FirstOrDefaultAsync(x => x.Id == id));
-
+            return Ok(await this._gradeService.GetByIdAsync(id));
         }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Grade grade)
         {
-            this._context.Grades.Add(grade);
-            await this._context.SaveChangesAsync();
+            await this._gradeService.CreateAsync(grade);
 
             return Ok(grade);
         }
