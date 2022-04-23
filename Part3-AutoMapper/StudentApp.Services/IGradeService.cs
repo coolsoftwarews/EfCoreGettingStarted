@@ -1,9 +1,6 @@
-﻿using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using StudentApp.Core.Domain;
 using StudentApp.Data;
-using StudentApp.Services.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,52 +11,37 @@ namespace StudentApp.Services
 {
     public interface IGradeService
     {
-        Task<List<dtoGrade>> GetAllAsync();
-        Task<dtoGrade> GetByIdAsync(int id);
-        Task<dtoGrade> CreateAsync(dtoGrade dto);
+        Task<List<Grade>> GetAllAsync();
+        Task<Grade> GetByIdAsync(int id);
+        Task<Grade> CreateAsync(Grade entity);
     }
 
     public class GradeService : IGradeService
     {
         private StudentContext _context;
-        private IMapper _mapper;
 
-        public GradeService(
-                              IMapper mapper
-            )
+        public GradeService()
         {
             this._context = new StudentContext(); // will change to DI later
-
-            this._mapper = mapper;
         }
-        public async Task<dtoGrade> CreateAsync(dtoGrade dto)
+        public async Task<Grade> CreateAsync(Grade entity)
         {
-            var entity = this._mapper.Map<Grade>(dto);
-
             await this._context.Grades.AddAsync(entity);
             await this._context.SaveChangesAsync();
 
-            return dto;
+            return entity;
         }
 
-        public async Task<List<dtoGrade>> GetAllAsync()
+        public async Task<List<Grade>> GetAllAsync()
         {
-            var grades = await this._context
-                                    .Grades
-                                    .ToListAsync();
-
-            return this._mapper.Map<List<dtoGrade>>(grades);
+            return await this._context.Grades.ToListAsync();
         }
 
-        public async Task<dtoGrade> GetByIdAsync(int id)
+        public async Task<Grade> GetByIdAsync(int id)
         {
-            var dto = await this._context
-                                    .Grades
-                                    .ProjectTo<dtoGrade>(_mapper.ConfigurationProvider)
-                                    .FirstOrDefaultAsync(x => x.Id == id);
+            var entity = await this._context.Grades.FirstOrDefaultAsync(x => x.Id == id);
 
-
-            return dto;
+            return entity;
         }
     }
 }
