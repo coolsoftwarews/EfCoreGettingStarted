@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using StudentApp.Core.Domain;
 using StudentApp.Data;
 using StudentApp.Services;
+using StudentApp.Services.DTOs;
 
 namespace StudentApp.API.Controllers
 {
@@ -33,11 +34,12 @@ namespace StudentApp.API.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Grade grade)
+        public async Task<IActionResult> Create([FromBody] dtoGrade dto)
         {
-            await this._gradeService.CreateAsync(grade);
+            await this._gradeService.CreateAsync(dto);
 
-            return Ok(grade);
+            return Ok(dto);
         }
     }
+
 }

@@ -1,6 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
+using Microsoft.EntityFrameworkCore;
 using StudentApp.Core.Domain;
 using StudentApp.Data;
+using StudentApp.Services.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +14,7 @@ namespace StudentApp.Services
 {
     public interface IStudentService
     {
-        Task<List<Student>> GetAllAsync();
+        Task<List<dtoStudent>> GetAllAsync();
         Task<Student> GetByIdAsync(int id);
         Task<Student> CreateAsync(Student entity);
     }
@@ -19,10 +22,13 @@ namespace StudentApp.Services
     public class StudentService : IStudentService
     {
         private StudentContext _context;
+        private IMapper _mapper;
 
-        public StudentService()
+        public StudentService(IMapper mapper)
         {
             this._context = new StudentContext(); // will change to DI later
+
+            this._mapper = mapper;
         }
         public async Task<Student> CreateAsync(Student entity)
         {
@@ -32,9 +38,9 @@ namespace StudentApp.Services
             return entity;
         }
 
-        public async Task<List<Student>> GetAllAsync()
+        public async Task<List<dtoStudent>> GetAllAsync()
         {
-            return await this._context.Students.ToListAsync();
+            return await this._context.Students.ProjectTo<dtoStudent>(_mapper.ConfigurationProvider).ToListAsync();
         }
 
         public async Task<Student> GetByIdAsync(int id)
